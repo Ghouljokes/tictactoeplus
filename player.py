@@ -37,7 +37,7 @@ class HumanPlayer(Player):
                 print("Please enter a valid col number.")
                 continue
             row, col = int(row_in) - 1, int(col_in) - 1
-            if brd.grid[row][col] == ' ':
+            if brd.coords[(row, col)] == ' ':
                 return (row, col)
             print("That square is already filled!")
 

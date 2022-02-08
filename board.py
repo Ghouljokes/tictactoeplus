@@ -10,6 +10,10 @@ class Board:
         self.width = width
         self.height = height
         self.grid = [[' '] * width for i in range(height)]
+        self.coords = {}
+        for row in range(height):
+            for col in range(width):
+                self.coords[(row, col)] = ' '
         self.adj_table = {
             "N": lambda a, b, dist: (a-dist, b),
             "NE": lambda a, b, dist: (a-dist, b+dist),
@@ -30,23 +34,19 @@ class Board:
         rows_to_print.append(" | ".join(self.grid[-1]))
         return "\n" + "\n".join(rows_to_print) + "\n"
 
-    def posit(self, position) -> str:
-        """Return contents of a square at position pos."""
-        row, col = position
-        return self.grid[row][col]
-
     def adj(self, position: tuple, direction: str, dist: int = 1) -> str:
         """Return contents of square in direction & distance to pos."""
         row, col = position
         row2, col2 = self.adj_table[direction](row, col, dist)
         if row2 < 0 or col2 < 0 or row2 >= self.height or col2 >= self.width:
             return "None"
-        return self.posit((row2, col2))
+        return self.coords[(row2, col2)]
 
     def fill_square(self, position: tuple, letter: str) -> None:
         """Fill position given by pos in the form (row, col) with a letter."""
         row, col = position
         self.grid[row][col] = letter
+        self.coords[position] = letter
 
     def get_all_empty(self) -> list:
         """Return list of positions for all empty squares in the board."""
