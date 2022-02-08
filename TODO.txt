@@ -1,3 +1,0 @@
-TODO: Speed up minimax
-TODO: Clean up code 
-TODO: Balance things for higher sizes
