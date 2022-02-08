@@ -1,6 +1,5 @@
 There was a video tutorial on how to make tic-tac-toe in python.
-I saw this video tutorial.
-I decided to do it better.
+I saw this video tutorial and immediately knew I could do better.
 Introducing Tic-Tac-Toe+, the tic-tac-toe of the future.
 It has all the classic Tic-Tac-Toe gameplay you know and love, but with some added improvements such AS:
     Variable board size- 3x3 too limiting? How about 3x4? or 5x5? or 3x50? The sky (and your patience) is the limit...
