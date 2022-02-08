@@ -122,6 +122,8 @@ class AiPlayer:
             if score > best_score:
                 best_score = score
                 best_position = cell
+            if best_score == 1:
+                return best_position
         return best_position
 
     def minimax(self, brd: Board, depth: int, free_cells: list) -> int:
@@ -145,6 +147,8 @@ class AiPlayer:
             score = self.minimax(brd, depth+1, new_list)
             brd.fill_square(cell, ' ')
             best_score = m_mult * min((m_mult * best_score, m_mult * score))
+            if best_score == 1:
+                return 1
         return int(best_score)
 
     def make_move(self, brd: Board):
