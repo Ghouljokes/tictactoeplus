@@ -1,0 +1,2 @@
+TODO: Speed up minimax
+TODO: Rewrite main so tie doesn't include x win message
