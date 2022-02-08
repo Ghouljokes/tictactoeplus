@@ -60,7 +60,7 @@ class AiPlayer:
     def easy_move(self, brd: Board) -> tuple:
         """Choose square that gives least chance of winning."""
         best_score = -(math.inf)
-        best_position = None
+        best_position = (None, None)
         all_empty_cells = brd.get_all_empty()
         for cell in all_empty_cells:
             brd.fill_square(cell, self.letter)
@@ -105,7 +105,7 @@ class AiPlayer:
     def master_move(self, brd: Board) -> tuple:
         """Ai finds best possible move."""
         best_score = -(math.inf)
-        best_position = None
+        best_position = (None, None)
         all_empty_cells = brd.get_all_empty()
         win_square = brd.winning_square(self.letter)
         if win_square:
