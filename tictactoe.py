@@ -84,4 +84,8 @@ Cpu player filled in row {ai_move[0]} col {ai_move[1]}.\
             return
 
 
-main()
+while True:
+    main()
+    quit_or_not = input("Enter \'q\' to quit or any other key to play again.\n")
+    if quit_or_not == 'q':
+        break
