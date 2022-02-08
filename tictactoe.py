@@ -10,8 +10,7 @@ def make_board() -> Board:
         x_dim = input("Enter board width (must be three or greater)\n")
     while not y_dim.isnumeric() or int(y_dim) < 3:
         y_dim = input("Enter board height (must be three or greater)\n")
-    grid = [[' '] * int(x_dim) for i in range(int(y_dim))]
-    return Board(grid)
+    return Board(int(x_dim), int(y_dim))
 
 
 def difficulty_select() -> str:

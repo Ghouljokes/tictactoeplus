@@ -4,11 +4,12 @@
 class Board:
     """Tic tac toe board."""
 
-    def __init__(self, grid: list[list]) -> None:
-        """Make board from grid."""
-        self.grid = grid
-        self.width = len(grid[0])
-        self.height = len(grid)
+    # def __init__(self, grid: list[list]) -> None:
+    def __init__(self, width: int, height: int) -> None:
+        """Make board from given dimensions."""
+        self.width = width
+        self.height = height
+        self.grid = [[' '] * width for i in range(height)]
         self.adj_table = {
             "N": lambda a, b, dist: (a-dist, b),
             "NE": lambda a, b, dist: (a-dist, b+dist),
