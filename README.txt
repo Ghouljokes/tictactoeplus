@@ -13,4 +13,4 @@ Running:
     Just have all these bad boys in one folder and then run tictactoe.py
 
 NOTES: Turns out tic-tac-toe was not balanced for anything beyond 3x3, meaning you can guarantee yourself wins on anything larger if you know how.
-       Speaking of larger boards, master difficulty will begin to have a seriously rough time on anything larger than 5x4. Be careful. Both of these issues will be fixed in the future.
+       Speaking of larger boards, master difficulty will begin to have a seriously rough time on anything larger than 5x4. Be careful. At least one of these issues will be fixed in the future.
