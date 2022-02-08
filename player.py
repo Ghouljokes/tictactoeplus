@@ -51,7 +51,7 @@ class AiPlayer:
         Args:
             letter (str): Letter that will rep player on board
             difficulty (str): how difficult ai will be to beat.
-            Difficulties are: baby, normal, chaotic, and master
+            Difficulties are: easy, normal, chaotic, and master
         """
         self.letter = letter
         self.opponent = opponent
