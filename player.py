@@ -1,5 +1,6 @@
 """Contains player class."""
 import math
+import random
 from board import Board
 
 
@@ -56,10 +57,42 @@ class AiPlayer:
         self.opponent = opponent
         self.difficulty = difficulty
 
-    def easy_move(self, brd: Board):
+    def easy_move(self, brd: Board) -> tuple:
         """Choose square that gives least chance of winning."""
+        best_score = -(math.inf)
+        best_position = None
+        all_empty_cells = brd.get_all_empty()
+        for cell in all_empty_cells:
+            brd.fill_square(cell, self.letter)
+            new_empty = all_empty_cells
+            new_empty.remove(cell)
+            score = self.maximin(brd, 0, new_empty)
+            brd.fill_square(cell, ' ')
+            if score > best_score:
+                best_score = score
+                best_position = cell
+        return best_position
 
-    def medium_move(self, brd: Board):
+    def maximin(self, brd: Board, depth: int, free_cells: list) -> int:
+        """Maximin function."""
+        if brd.has_three(self.opponent):
+            return 1
+        if brd.has_three(self.letter):
+            return -1
+        is_max = bool(depth & 1)
+        if depth >= 5 or len(free_cells) >= 1:
+            return 0
+        m_mult = -1 if is_max else 1
+        best_score = m_mult * math.inf
+        for cell in free_cells:
+            new_list = free_cells[:]
+            new_list.remove(cell)
+            score = self.maximin(brd, depth+1, new_list)
+            brd.fill_square(cell, ' ')
+            best_score = m_mult * min((m_mult * best_score, m_mult * score))
+        return int(best_score)
+
+    def medium_move(self, brd: Board) -> tuple:
         """Choose first blank square (subject to change)."""
         try_square = brd.winning_square(self.letter)
         if try_square:
@@ -67,13 +100,9 @@ class AiPlayer:
         try_square = brd.winning_square('X')
         if try_square:
             return try_square
-        for i, row in enumerate(brd.grid):
-            for j, square in enumerate(row):
-                if square == " ":
-                    return (i, j)
-        return 0
+        return random.choice(brd.get_all_empty())
 
-    def master_move(self, brd: Board):
+    def master_move(self, brd: Board) -> tuple:
         """Ai finds best possible move."""
         best_score = -(math.inf)
         best_position = None
@@ -97,7 +126,7 @@ class AiPlayer:
 
     def minimax(self, brd: Board, depth: int, free_cells: list) -> int:
         """Minimax function."""
-        is_max = (depth % 2 == 1)
+        is_max = bool(depth & 1)  # maximizes based off depth evenness.
         if brd.is_full() or depth >= 5:
             return 0
         to_fill = self.letter if is_max else self.opponent
@@ -116,14 +145,15 @@ class AiPlayer:
             score = self.minimax(brd, depth+1, new_list)
             brd.fill_square(cell, ' ')
             best_score = m_mult * min((m_mult * best_score, m_mult * score))
-        return best_score
+        return int(best_score)
 
     def make_move(self, brd: Board):
         """Make move on board according to difficulty."""
-        if self.difficulty == "baby":
-            pass
-        if self.difficulty == "normal":
-            return self.medium_move(brd)
+        difficulty_list = [self.easy_move, self.medium_move, self.master_move]
+        if self.difficulty == "easy":
+            return difficulty_list[0](brd)
+        if self.difficulty == "medium":
+            return difficulty_list[1](brd)
         if self.difficulty == "master":
-            return self.master_move(brd)
-        return "You've entered an invalid difficulty, dipshit."  # delete later
+            return difficulty_list[2](brd)
+        return random.choice(difficulty_list)(brd)

@@ -1,2 +1,3 @@
 TODO: Speed up minimax
-TODO: Rewrite main so tie doesn't include x win message
+TODO: Clean up code 
+TODO: Balance things for higher sizes
