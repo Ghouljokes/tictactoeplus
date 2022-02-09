@@ -8,7 +8,7 @@ class Board:
         """Make board from given dimensions."""
         self.width = width
         self.height = height
-        self.coords = {}
+        self.coords: dict = {}
         for row in range(height):
             for col in range(width):
                 self.coords[(row, col)] = ' '
@@ -53,24 +53,41 @@ class Board:
         """Check if all squares in the board are filled."""
         return ' ' not in self.coords.values()
 
-    def has_three(self, ltr: str) -> bool:
-        """Check to see if there's a row of three of the same letter (ltr)."""
-        for pos, val in self.coords.items():
-            if val != ltr:
-                continue
-            for i in ["E", "S", "SE", "SW"]:
-                if self.adj(pos, i) == ltr and self.adj(pos, i, 2) == ltr:
-                    return True
+    def check_streak(self, pos: tuple, ltr: str, direction: str) -> bool:
+        """Check if there is a streak across the board at pos in direction."""
+        if self.coords[pos] != ltr:
+            return False
+        new_pos = self.adj_table[direction](pos[0], pos[1], 1)
+        if new_pos not in self.coords:
+            return True
+        return self.check_streak(new_pos, ltr, direction)
+
+    def has_won(self, ltr: str) -> bool:
+        """Check to see if there's a row of the same ltr accross board."""
+        for row in range(self.height):
+            chk_row = [(row, col) for col in range(self.width)]
+            if all(self.coords[i] == ltr for i in chk_row):
+                return True
+        for col in range(self.width):
+            chk_col = [(row, col) for row in range(self.height)]
+            if all(self.coords[i] == ltr for i in chk_col):
+                return True
+        if self.check_streak((0, 0), ltr, "SE"):
+            return True
+        if self.check_streak((0, self.width-1), ltr, "SW"):
+            return True
+        if self.check_streak((self.height-1, self.width-1), ltr, "NW"):
+            return True
+        if self.check_streak((self.height-1, 0), ltr, "NE"):
+            return True
         return False
 
     def winning_square(self, ltr: str):
-        """Look for a square to put letter to win the game."""
-        for pos, val in self.coords.items():
-            if val != ltr:
-                continue
-            for i in ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]:
-                if self.adj(pos, i) == ltr and self.adj(pos, i, 2) == ' ':
-                    return self.adj_table[i](pos[0], pos[1], 2)
-                if self.adj(pos, i) == ' ' and self.adj(pos, i, 2) == ltr:
-                    return self.adj_table[i](pos[0], pos[1], 1)
+        """Look for a square that will win the game."""
+        for cell in self.get_all_empty():
+            self.fill_square(cell, ltr)
+            if self.has_won(ltr):
+                self.fill_square(cell, ' ')
+                return cell
+            self.fill_square(cell, ' ')
         return None

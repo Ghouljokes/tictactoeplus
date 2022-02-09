@@ -7,10 +7,14 @@ It has all the classic Tic-Tac-Toe gameplay you know and love, but with some add
         Easy will pretty much always make the worst move possible. You have to try to lose to it.
         Medium will block your streaks and try to complete its own, and choose random squares otherwise.
         Master will always choose the best possible move. Pretty much unbeatable at 3x3.
-        Chaotic will choose the method from any of the three other difficulties at random.
+        Chaotic will choose a method from any of the three other difficulties at random.
+
+RULES:
+    Each player takes a turn to place a number on the board. The first to build a streak of their letters across the board wins.
+    For this program's purposes, a streak refers to a full row, full column, or full line originating from one of the four corners.
 
 Running:
     Just have all these bad boys in one folder and then run tictactoe.py
 
-NOTES: Turns out tic-tac-toe was not balanced for anything beyond 3x3, meaning you can guarantee yourself wins on anything larger if you know how.
-       Speaking of larger boards, master difficulty will begin to have a seriously rough time on anything larger than 5x4. Be careful. At least one of these issues will be fixed in the future.
+NOTES:
+       Master difficulty will begin to have a seriously rough time on anything larger than 3x4. Be careful.

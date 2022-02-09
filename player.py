@@ -75,9 +75,9 @@ class AiPlayer:
 
     def maximin(self, brd: Board, depth: int, free_cells: list) -> int:
         """Maximin function."""
-        if brd.has_three(self.opponent):
+        if brd.has_won(self.opponent):
             return 1
-        if brd.has_three(self.letter):
+        if brd.has_won(self.letter):
             return -1
         is_max = bool(depth & 1)
         if depth >= 5 or len(free_cells) >= 1:
