@@ -22,6 +22,13 @@ class Board:
             "W": lambda a, b, dist: (a, b-dist),
             "NW": lambda a, b, dist: (a-dist, b-dist)
         }
+        self.corner_dirs = {
+            (0, 0): "SE",
+            (0, width-1): "SW"
+        }
+        if self.height != self.width:
+            self.corner_dirs[(height-1, width-1)] = "NW"
+            self.corner_dirs[(height-1, 0)] = "NE"
 
     def __repr__(self) -> str:
         """Print the board."""
@@ -44,9 +51,9 @@ class Board:
         """Fill position given by pos in the form (row, col) with a letter."""
         self.coords[position] = letter
 
-    def get_all_empty(self) -> list:
-        """Return list of positions for all empty squares in the board."""
-        list_of_empty = [pos for pos, val in self.coords.items() if val == ' ']
+    def get_all_matching(self, ltr: str) -> list:
+        """Return list of positions for all squares with val ltr."""
+        list_of_empty = [pos for pos, val in self.coords.items() if val == ltr]
         return list_of_empty
 
     def is_full(self) -> bool:
@@ -61,9 +68,9 @@ class Board:
         if new_pos not in self.coords:
             return True
         return self.check_streak(new_pos, ltr, direction)
-    
+
     def get_streak(self, pos: tuple, direction: str) -> list:
-        """Returns a list of all coords in a line from a position"""
+        """Return a list of all coords in a line from a position."""
         i = 1
         streak = [pos]
         while True:
@@ -72,7 +79,6 @@ class Board:
                 return streak
             streak.append(new_square)
             i += 1
-        
 
     def has_won(self, ltr: str) -> bool:
         """Check to see if there's a row of the same ltr accross board."""
@@ -84,45 +90,33 @@ class Board:
             chk_col = [(row, col) for row in range(self.height)]
             if all(self.coords[i] == ltr for i in chk_col):
                 return True
-        if self.check_streak((0, 0), ltr, "SE"):
-            return True
-        if self.check_streak((0, self.width-1), ltr, "SW"):
-            return True
-        if self.height != self.width:
-            if self.check_streak((self.height-1, self.width-1), ltr, "NW"):
-                return True
-            if self.check_streak((self.height-1, 0), ltr, "NE"):
+        for corner, direction in self.corner_dirs.items():
+            if self.check_streak(corner, ltr, direction):
                 return True
         return False
 
     def winning_square(self, ltr: str):
         """Look for a square that will win the game."""
-        if list(self.coords.values()).count(ltr) < min((self.width, self.height)) - 1:
+        letter_coords = self.get_all_matching(ltr)
+        if len(letter_coords) < min((self.height, self.width)) - 1:
             return None
-        for row in range(self.height):
+        chk_rows = set(coord[0] for coord in letter_coords)
+        chk_cols = set(coord[1] for coord in letter_coords)
+        if len(chk_rows) < self.height - 1 and len(chk_cols) < self.width - 1:
+            return None
+        for row in chk_rows:
             chk_row = [(row, col) for col in range(self.width)]
-            row_vals = [self.coords[cell] for cell in chk_row]
-            if row_vals.count(' ') == 1 and row_vals.count(ltr) == len(row_vals) - 1:
-                return chk_row[row_vals.index(' ')]
-        for col in range(self.width):
+            vals = [self.coords[cell] for cell in chk_row]
+            if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
+                return chk_row[vals.index(' ')]
+        for col in chk_cols:
             chk_col = [(row, col) for row in range(self.height)]
-            col_vals = [self.coords[cell] for cell in chk_col]
-            if col_vals.count(' ') == 1 and col_vals.count(ltr) == len(col_vals) - 1:
-                return chk_col[col_vals.index(' ')]
-        se_streak = self.get_streak((0, 0), "SE")
-        se_vals = [self.coords[cell] for cell in se_streak]
-        if se_vals.count(' ') == 1 and se_vals.count(ltr) == len(se_vals) - 1:
-            return se_streak[se_vals.index(' ')]
-        sw_streak = self.get_streak((0, self.width-1), "SW")
-        sw_vals = [self.coords[cell] for cell in sw_streak]
-        if sw_vals.count(' ') == 1 and sw_vals.count(ltr) == len(sw_vals) - 1:
-            return sw_streak[sw_vals.index(' ')]
-        nw_streak = self.get_streak((self.height-1, self.width-1), "NW")
-        nw_vals = [self.coords[cell] for cell in nw_streak]
-        if nw_vals.count(' ') == 1 and nw_vals.count(ltr) == len(nw_vals) - 1:
-            return nw_streak[nw_vals.index(' ')]
-        ne_streak = self.get_streak((self.height-1, 0), "NE")
-        ne_vals = [self.coords[cell] for cell in ne_streak]
-        if ne_vals.count(' ') == 1 and ne_vals.count(ltr) == len(ne_vals) - 1:
-            return ne_streak[ne_vals.index(' ')]
+            vals = [self.coords[cell] for cell in chk_col]
+            if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
+                return chk_col[vals.index(' ')]
+        for corner, direction in self.corner_dirs.items():
+            streak = self.get_streak(corner, direction)
+            vals = [self.coords[cell] for cell in streak]
+            if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
+                return streak[vals.index(' ')]
         return None

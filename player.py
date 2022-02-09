@@ -56,13 +56,12 @@ class AiPlayer:
         self.letter = letter
         self.opponent = opponent
         self.difficulty = difficulty
-        self.minmax_count = 0
 
     def easy_move(self, brd: Board) -> tuple:
         """Choose square that gives least chance of winning."""
         best_score = -(math.inf)
         best_position = (None, None)
-        all_empty_cells = brd.get_all_empty()
+        all_empty_cells = brd.get_all_matching(' ')
         for cell in all_empty_cells:
             brd.fill_square(cell, self.letter)
             new_empty = all_empty_cells
@@ -101,13 +100,13 @@ class AiPlayer:
         try_square = brd.winning_square('X')
         if try_square:
             return try_square
-        return random.choice(brd.get_all_empty())
+        return random.choice(brd.get_all_matching(' '))
 
     def master_move(self, brd: Board) -> tuple:
         """Ai finds best possible move."""
         best_score = -(math.inf)
         best_position = (None, None)
-        all_empty_cells = brd.get_all_empty()
+        all_empty_cells = brd.get_all_matching(' ')
         win_square = brd.winning_square(self.letter)
         if win_square:
             return win_square
@@ -129,7 +128,6 @@ class AiPlayer:
 
     def minimax(self, brd: Board, depth: int, free_cells: list) -> int:
         """Minimax function."""
-        self.minmax_count += 1
         is_max = bool(depth & 1)  # maximizes based off depth evenness.
         if brd.is_full() or depth >= 5:
             return 0
