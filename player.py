@@ -56,6 +56,7 @@ class AiPlayer:
         self.letter = letter
         self.opponent = opponent
         self.difficulty = difficulty
+        self.minmax_count = 0
 
     def easy_move(self, brd: Board) -> tuple:
         """Choose square that gives least chance of winning."""
@@ -128,6 +129,7 @@ class AiPlayer:
 
     def minimax(self, brd: Board, depth: int, free_cells: list) -> int:
         """Minimax function."""
+        self.minmax_count += 1
         is_max = bool(depth & 1)  # maximizes based off depth evenness.
         if brd.is_full() or depth >= 5:
             return 0
