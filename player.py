@@ -72,6 +72,8 @@ class AiPlayer:
             if score < worst_score:
                 worst_score = score
                 worst_position = cell
+            if worst_score == -1:
+                return worst_position
         return worst_position
 
     def medium_move(self, brd: Board) -> tuple:
