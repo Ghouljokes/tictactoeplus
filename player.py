@@ -1,6 +1,8 @@
 """Contains player class."""
 import math
 import random
+
+from numpy import ma
 from board import Board
 
 
@@ -135,16 +137,21 @@ class AiPlayer:
             return 1
         if brd.has_won(min_player):
             return -1
-        if brd.is_full():
+        if brd.is_full() or depth >= 5:
             return 0
+        if brd.winning_square(max_player):
+            return 1
+        op_square = brd.winning_square(min_player) 
         best_score = -math.inf
-        to_check = free_cells
+        to_check = [op_square] if op_square else free_cells
         for cell in to_check:
             brd.fill_square(cell, max_player)
             new_list = free_cells[:]
             new_list.remove(cell)
             score = -self.minimax(brd, depth+1, new_list)
             brd.fill_square(cell, ' ')
+            if score == 1:
+                return 1
             best_score = max(best_score, score)
         return best_score
 
