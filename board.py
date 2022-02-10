@@ -29,6 +29,17 @@ class Board:
         if self.height != self.width:
             self.corner_dirs[(height-1, width-1)] = "NW"
             self.corner_dirs[(height-1, 0)] = "NE"
+        self.all_paths = []
+        for row in range(height):
+            new_row = [(row, col) for col in range(width)]
+            self.all_paths.append(new_row)
+        for col in range(width):
+            new_col = [(row, col) for row in range(height)]
+            self.all_paths.append(new_col)
+        for pos, direction in self.corner_dirs.items():
+            new_ray = self.get_streak(pos, direction)
+            self.all_paths.append(new_ray)
+
 
     def __repr__(self) -> str:
         """Print the board."""
@@ -81,42 +92,16 @@ class Board:
             i += 1
 
     def has_won(self, ltr: str) -> bool:
-        """Check to see if there's a row of the same ltr accross board."""
-        for row in range(self.height):
-            chk_row = [(row, col) for col in range(self.width)]
-            if all(self.coords[i] == ltr for i in chk_row):
-                return True
-        for col in range(self.width):
-            chk_col = [(row, col) for row in range(self.height)]
-            if all(self.coords[i] == ltr for i in chk_col):
-                return True
-        for corner, direction in self.corner_dirs.items():
-            if self.check_streak(corner, ltr, direction):
+        """Check to see if ltr has won."""
+        for path in self.all_paths:
+            if all(self.coords[i] == ltr for i in path):
                 return True
         return False
 
     def winning_square(self, ltr: str):
-        """Look for a square that will win the game."""
-        letter_coords = self.get_all_matching(ltr)
-        if len(letter_coords) < min((self.height, self.width)) - 1:
-            return None
-        chk_rows = set(coord[0] for coord in letter_coords)
-        chk_cols = set(coord[1] for coord in letter_coords)
-        if len(chk_rows) < self.height - 1 and len(chk_cols) < self.width - 1:
-            return None
-        for row in chk_rows:
-            chk_row = [(row, col) for col in range(self.width)]
-            vals = [self.coords[cell] for cell in chk_row]
-            if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
-                return chk_row[vals.index(' ')]
-        for col in chk_cols:
-            chk_col = [(row, col) for row in range(self.height)]
-            vals = [self.coords[cell] for cell in chk_col]
-            if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
-                return chk_col[vals.index(' ')]
-        for corner, direction in self.corner_dirs.items():
-            streak = self.get_streak(corner, direction)
-            vals = [self.coords[cell] for cell in streak]
-            if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
-                return streak[vals.index(' ')]
+        """Return position ltr should place to win."""
+        for path in self.all_paths:
+           vals = [self.coords[cell] for cell in path]
+           if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
+               return path[vals.index(' ')]
         return None
