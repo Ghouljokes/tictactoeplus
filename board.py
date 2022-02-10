@@ -24,8 +24,8 @@ class Board:
             "NW": lambda a, b, dist: (a-dist, b-dist)
         }
         self.func_counts = {
-            "adj": 0, "get_match": 0, "is_full": 0, "chk_streak": 0,
-            "get_streak": 0, "get_winner": 0, "win_square": 0
+            "get_match": 0, "is_full": 0, "get_streak": 0, 
+            "get_winner": 0, "win_square": 0
         }
         self.corner_dirs = {
             (0, 0): "SE",
