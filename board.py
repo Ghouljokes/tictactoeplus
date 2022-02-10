@@ -9,6 +9,7 @@ class Board:
         self.width = width
         self.height = height
         self.coords: dict = {}
+        self.letters = ["X", "O"]
         for row in range(height):
             for col in range(width):
                 self.coords[(row, col)] = ' '
@@ -21,6 +22,10 @@ class Board:
             "SW": lambda a, b, dist: (a+dist, b-dist),
             "W": lambda a, b, dist: (a, b-dist),
             "NW": lambda a, b, dist: (a-dist, b-dist)
+        }
+        self.func_counts = {
+            "adj": 0, "get_match": 0, "is_full": 0, "chk_streak": 0,
+            "get_streak": 0, "get_winner": 0, "win_square": 0
         }
         self.corner_dirs = {
             (0, 0): "SE",
@@ -50,38 +55,24 @@ class Board:
         separator = f"\n{'-|-'.join(['-'] * self.width)}\n"
         return f"\n{separator.join(rows_to_print)}\n"
 
-    def adj(self, position: tuple, direction: str, dist: int = 1) -> str:
-        """Return contents of square in direction & distance to pos."""
-        row, col = position
-        row2, col2 = self.adj_table[direction](row, col, dist)
-        if row2 < 0 or col2 < 0 or row2 >= self.height or col2 >= self.width:
-            return "None"
-        return self.coords[(row2, col2)]
-
     def fill_square(self, position: tuple[int, int], letter: str) -> None:
         """Fill position given by pos in the form (row, col) with a letter."""
         self.coords[position] = letter
 
     def get_all_matching(self, ltr: str) -> list:
         """Return list of positions for all squares with val ltr."""
+        self.func_counts["get_match"] += 1
         list_of_empty = [pos for pos, val in self.coords.items() if val == ltr]
         return list_of_empty
 
     def is_full(self) -> bool:
         """Check if all squares in the board are filled."""
+        self.func_counts["is_full"] += 1
         return ' ' not in self.coords.values()
-
-    def check_streak(self, pos: tuple, ltr: str, direction: str) -> bool:
-        """Check if there is a streak across the board at pos in direction."""
-        if self.coords[pos] != ltr:
-            return False
-        new_pos = self.adj_table[direction](pos[0], pos[1], 1)
-        if new_pos not in self.coords:
-            return True
-        return self.check_streak(new_pos, ltr, direction)
 
     def get_streak(self, pos: tuple, direction: str) -> list:
         """Return a list of all coords in a line from a position."""
+        self.func_counts["get_streak"] += 1
         i = 1
         streak = [pos]
         while True:
@@ -91,15 +82,19 @@ class Board:
             streak.append(new_square)
             i += 1
 
-    def has_won(self, ltr: str) -> bool:
-        """Check to see if ltr has won."""
+    def get_winner(self):
+        """Check to see if there is a winner."""
+        self.func_counts["get_winner"] += 1
         for path in self.all_paths:
-            if all(self.coords[i] == ltr for i in path):
-                return True
-        return False
+            vals = [self.coords[cell] for cell in path]
+            for letter in self.letters:
+                if vals.count(letter) == len(vals):
+                    return letter
+        return None
 
     def winning_square(self, ltr: str):
         """Return position ltr should place to win."""
+        self.func_counts["win_square"] += 1
         if len(self.get_all_matching(ltr)) < min([self.width, self.height]) - 1:
             return None
         for path in self.all_paths:

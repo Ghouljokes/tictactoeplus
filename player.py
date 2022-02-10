@@ -81,7 +81,7 @@ class AiPlayer:
         try_square = brd.winning_square(self.letter)
         if try_square:
             return try_square
-        try_square = brd.winning_square('X')
+        try_square = brd.winning_square(self.opponent)
         if try_square:
             return try_square
         return random.choice(brd.get_all_matching(' '))
@@ -115,10 +115,9 @@ class AiPlayer:
         is_max = bool(depth & 1)
         max_player = self.letter if is_max else self.opponent
         min_player = self.opponent if is_max else self.letter
-        if brd.has_won(max_player):
-            return 1
-        if brd.has_won(min_player):
-            return -1
+        has_won = brd.get_winner()
+        if has_won:
+            return 1 if has_won == max_player else -1
         if brd.is_full() or depth >= 5:
             return 0
         if brd.winning_square(max_player):
