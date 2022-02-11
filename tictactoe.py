@@ -51,7 +51,6 @@ def main():
             print("Tie!")
             return
         ai_move = ai_1.make_move(board)
-        print(board.func_counts)
         board.fill_square(ai_move, ai_1.letter)
         print(f"\
 Cpu player filled in row {ai_move[0]} col {ai_move[1]}.\
