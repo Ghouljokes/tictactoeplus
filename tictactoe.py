@@ -44,18 +44,19 @@ def main():
         p1_move = pl_1.make_move(board)
         board.fill_square(p1_move, pl_1.letter)
         print(board)
-        if board.has_won(pl_1.letter):
+        if board.get_winner() == pl_1.letter:
             print("You win!")
             return
         if board.is_full():
             print("Tie!")
             return
         ai_move = ai_1.make_move(board)
+        print(board.func_counts)
         board.fill_square(ai_move, ai_1.letter)
         print(f"\
 Cpu player filled in row {ai_move[0]} col {ai_move[1]}.\
         ")
-        if board.has_won(ai_1.letter):
+        if board.get_winner() == ai_1.letter:
             print(board)
             print("You lose!")
             return

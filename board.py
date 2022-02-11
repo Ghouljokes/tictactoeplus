@@ -9,6 +9,7 @@ class Board:
         self.width = width
         self.height = height
         self.coords: dict = {}
+        self.letters = ["X", "O"]
         for row in range(height):
             for col in range(width):
                 self.coords[(row, col)] = ' '
@@ -22,23 +23,28 @@ class Board:
             "W": lambda a, b, dist: (a, b-dist),
             "NW": lambda a, b, dist: (a-dist, b-dist)
         }
+        self.func_counts = {
+            "get_match": 0, "is_full": 0, "get_streak": 0, 
+            "get_winner": 0, "win_square": 0
+        }
         self.corner_dirs = {
             (0, 0): "SE",
             (0, width-1): "SW"
         }
-        if height != width:
+        if self.height != self.width:
             self.corner_dirs[(height-1, width-1)] = "NW"
             self.corner_dirs[(height-1, 0)] = "NE"
-        self.all_possible_paths = []
+        self.all_paths = []
         for row in range(height):
-            poss_row = self.get_streak((row, 0), 'E')
-            self.all_possible_paths.append(poss_row)
+            new_row = [(row, col) for col in range(width)]
+            self.all_paths.append(new_row)
         for col in range(width):
-            poss_col = self.get_streak((0, col), "S")
-            self.all_possible_paths.append(poss_col)
-        for corner, direction in self.corner_dirs.items():
-            poss_streak = self.get_streak(corner, direction)
-            self.all_possible_paths.append(poss_streak)
+            new_col = [(row, col) for row in range(height)]
+            self.all_paths.append(new_col)
+        for pos, direction in self.corner_dirs.items():
+            new_ray = self.get_streak(pos, direction)
+            self.all_paths.append(new_ray)
+
 
     def __repr__(self) -> str:
         """Print the board."""
@@ -55,18 +61,18 @@ class Board:
 
     def get_all_matching(self, ltr: str) -> list:
         """Return list of positions for all squares with val ltr."""
-        return [pos for pos, val in self.coords.items() if val == ltr]
+        self.func_counts["get_match"] += 1
+        list_of_empty = [pos for pos, val in self.coords.items() if val == ltr]
+        return list_of_empty
 
     def is_full(self) -> bool:
         """Check if all squares in the board are filled."""
+        self.func_counts["is_full"] += 1
         return ' ' not in self.coords.values()
 
     def get_streak(self, pos: tuple, direction: str) -> list:
         """Return a list of all coords in a line from a position."""
-        if direction in ["N", "S"]:
-            return [(row, pos[1]) for row in range(self.height)]
-        if direction in ["E", "W"]:
-            return [(pos[0], col) for col in range(self.width)]
+        self.func_counts["get_streak"] += 1
         i = 1
         streak = [pos]
         while True:
@@ -76,25 +82,23 @@ class Board:
             streak.append(new_square)
             i += 1
 
-    def has_won(self, ltr: str):
-        """Check to see if ltr has won."""
-        for path in self.all_possible_paths:
-            if all(self.coords[i] == ltr for i in path):
-                return True
-        return False
-
-    def winning_square(self, ltr: str):
-        """Return square that will win the game, if it exists."""
-        for path in self.all_possible_paths:
+    def get_winner(self):
+        """Check to see if there is a winner."""
+        self.func_counts["get_winner"] += 1
+        for path in self.all_paths:
             vals = [self.coords[cell] for cell in path]
-            if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
-                return path[vals.index(' ')]
+            for letter in self.letters:
+                if vals.count(letter) == len(vals):
+                    return letter
         return None
 
-    def can_win(self, ltr: str):
-        """Check if a win is possible."""
-        for path in self.all_possible_paths:
-            vals = [self.coords[cell] in [' ', ltr] for cell in path]
-            if all(vals):
-                return True
-        return False
+    def winning_square(self, ltr: str):
+        """Return position ltr should place to win."""
+        self.func_counts["win_square"] += 1
+        if len(self.get_all_matching(ltr)) < min([self.width, self.height]) - 1:
+            return None
+        for path in self.all_paths:
+           vals = [self.coords[cell] for cell in path]
+           if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
+               return path[vals.index(' ')]
+        return None
