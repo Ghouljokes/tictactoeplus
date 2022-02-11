@@ -97,7 +97,7 @@ class AiPlayer:
         try_square = brd.winning_square(self.letter)
         if try_square:
             return try_square
-        try_square = brd.winning_square('X')
+        try_square = brd.winning_square(self.opponent)
         if try_square:
             return try_square
         return random.choice(brd.get_all_matching(' '))
@@ -134,6 +134,8 @@ class AiPlayer:
         to_fill = self.letter if is_max else self.opponent
         not_to_fill = self.opponent if is_max else self.letter
         m_mult = -1 if is_max else 1
+        if not brd.can_win(self.letter):
+            return -1 if brd.can_win(self.opponent) else 0
         best_score = m_mult * math.inf
         win_square = brd.winning_square(to_fill)
         if win_square:
