@@ -17,4 +17,4 @@ Running:
     Just have all these bad boys in one folder and then run tictactoe.py
 
 NOTES:
-       Master difficulty will begin to have a seriously rough time on anything larger than 4x4. Be careful.
+       Once the sizes begin hitting 8x8, anything other than medium difficulty will begin to take a while. Just be aware.

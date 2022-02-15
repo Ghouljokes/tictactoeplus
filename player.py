@@ -78,11 +78,14 @@ class AiPlayer:
             for i in range(100):
                 cell_scores[cell] += self.monte_carlo(brd, 0, new_list)
             brd.fill(cell, ' ')
+        max_cell = max(cell_scores, key=cell_scores.get)
+        min_cell = min(cell_scores, key=cell_scores.get)
         if self.difficulty == "master":
-            choice_cell = max(cell_scores, key=cell_scores.get)
+            return max_cell
+        elif self.difficulty == "easy":
+            return min_cell
         else:
-            choice_cell = min(cell_scores, key=cell_scores.get)
-        return choice_cell
+            return random.choice([max_cell, min_cell])
 
     def monte_carlo(self, brd: Board, depth: int, empty_list: list) -> int:
         """Implementation of the Monte Carlo algorithm."""
@@ -106,11 +109,9 @@ class AiPlayer:
 
     def make_move(self, brd: Board):
         """Make move on board according to difficulty."""
-        difficulty_list = [self.monte_move, self.medium_move, self.monte_move]
-        if self.difficulty == "easy":
+        difficulty_list = [self.monte_move, self.medium_move]
+        if self.difficulty in ["easy", "master"]:
             return difficulty_list[0](brd)
         if self.difficulty == "medium":
             return difficulty_list[1](brd)
-        if self.difficulty == "master":
-            return difficulty_list[2](brd)
         return random.choice(difficulty_list)(brd)
