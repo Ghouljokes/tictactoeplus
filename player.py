@@ -50,6 +50,7 @@ class AiPlayer:
         """Initialize player.
         Args:
             letter (str): Letter that will rep player on board
+            opponent (str): opponent's letter
             difficulty (str): how difficult ai will be to beat.
             Difficulties are: easy, normal, chaotic, and master
         """

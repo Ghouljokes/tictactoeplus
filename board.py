@@ -58,8 +58,7 @@ class Board:
 
     def get_all_matching(self, ltr: str) -> list:
         """Return list of positions for all squares with val ltr."""
-        list_of_empty = [pos for pos, val in self.coords.items() if val == ltr]
-        return list_of_empty
+        return [pos for pos, val in self.coords.items() if val == ltr]
 
     def is_full(self) -> bool:
         """Check if all squares in the board are filled."""
