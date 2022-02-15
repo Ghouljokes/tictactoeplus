@@ -1,3 +1,4 @@
+
 """Contains the class for the Board object."""
 
 
@@ -55,7 +56,7 @@ class Board:
         separator = f"\n{'-|-'.join(['-'] * self.width)}\n"
         return f"\n{separator.join(rows_to_print)}\n"
 
-    def fill_square(self, position: tuple[int, int], letter: str) -> None:
+    def fill(self, position: tuple[int, int], letter: str) -> None:
         """Fill position given by pos in the form (row, col) with a letter."""
         self.coords[position] = letter
 

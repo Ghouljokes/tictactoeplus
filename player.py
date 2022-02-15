@@ -48,7 +48,6 @@ class AiPlayer:
 
     def __init__(self, letter: str, opponent: str, difficulty: str):
         """Initialize player.
-
         Args:
             letter (str): Letter that will rep player on board
             difficulty (str): how difficult ai will be to beat.
@@ -57,24 +56,6 @@ class AiPlayer:
         self.letter = letter
         self.opponent = opponent
         self.difficulty = difficulty
-
-    def easy_move(self, brd: Board) -> tuple:
-        """Choose square that gives least chance of winning."""
-        worst_score = 2
-        worst_position = (None, None)
-        all_empty_cells = brd.get_all_matching(' ')
-        for cell in all_empty_cells:
-            brd.fill_square(cell, self.letter)
-            new_empty = all_empty_cells[:]
-            new_empty.remove(cell)
-            score = -self.minimax(brd, 0, new_empty)
-            brd.fill_square(cell, ' ')
-            if score < worst_score:
-                worst_score = score
-                worst_position = cell
-            if worst_score == -1:
-                return worst_position
-        return worst_position
 
     def medium_move(self, brd: Board) -> tuple:
         """Choose first blank square (subject to change)."""
@@ -86,59 +67,56 @@ class AiPlayer:
             return try_square
         return random.choice(brd.get_all_matching(' '))
 
-    def master_move(self, brd: Board) -> tuple:
-        """Ai finds best possible move."""
-        best_score = -2
-        best_position = (None, None)
-        all_empty_cells = brd.get_all_matching(' ')
-        win_square = brd.winning_square(self.letter)
-        if win_square:
-            return win_square
-        op_square = brd.winning_square(self.opponent)
-        if op_square:
-            return op_square
-        for cell in all_empty_cells:
-            brd.fill_square(cell, self.letter)
-            new_empty = all_empty_cells[:]
-            new_empty.remove(cell)
-            score = -self.minimax(brd, 0, new_empty)
-            brd.fill_square(cell, ' ')
-            if score > best_score:
-                best_score = score
-                best_position = cell
-            if best_score == 1:
-                return best_position
-        return best_position
-
-    def minimax(self, brd: Board, depth: int, free_cells: list):
-        """Retrun score of a board."""
-        is_max = bool(depth & 1)
-        max_player = self.letter if is_max else self.opponent
-        min_player = self.opponent if is_max else self.letter
-        has_won = brd.get_winner()
-        if has_won:
-            return 1 if has_won == max_player else -1
-        if brd.is_full() or depth >= 5:
-            return 0
-        if brd.winning_square(max_player):
-            return 1
-        op_square = brd.winning_square(min_player) 
-        best_score = -2
-        to_check = [op_square] if op_square else free_cells
-        for cell in to_check:
-            brd.fill_square(cell, max_player)
-            new_list = free_cells[:]
+    def monte_moron(self, brd: Board):
+        """Monte carlo algorithm choosing min score."""
+        empty_list = brd.get_all_matching(' ')
+        cell_scores = {cell: 0 for cell in empty_list}
+        for cell in empty_list:
+            brd.fill(cell, self.letter)
+            new_list = empty_list[:]
             new_list.remove(cell)
-            score = -self.minimax(brd, depth+1, new_list)
-            brd.fill_square(cell, ' ')
-            if score == 1:
-                return 1
-            best_score = max(best_score, score)
-        return best_score
+            for i in range(100):
+                cell_scores[cell] += self.monte_carlo(brd, 0, new_list)
+            brd.fill(cell, ' ')
+        min_cell = min(cell_scores, key=cell_scores.get)
+        return min_cell
+
+    def monte_move(self, brd: Board):
+        """Monte carlo algorithm playing each empty cell 100 times."""
+        empty_list = brd.get_all_matching(' ')
+        cell_scores = {cell: 0 for cell in empty_list}
+        for cell in empty_list:
+            brd.fill(cell, self.letter)
+            new_list = empty_list[:]
+            new_list.remove(cell)
+            for i in range(100):
+                cell_scores[cell] += self.monte_carlo(brd, 0, new_list)
+            brd.fill(cell, ' ')
+        max_cell = max(cell_scores, key=cell_scores.get)
+        return max_cell
+
+    def monte_carlo(self, brd: Board, depth: int, empty_list: list) -> int:
+        """Implementation of the Monte Carlo algorithm."""
+        winner = brd.get_winner()
+        if winner == self.letter:
+            return 1
+        if winner == self.opponent:
+            return -1
+        if brd.is_full():
+            return 0
+        players = [self.opponent, self.letter]
+        to_fill = players[depth % 2]
+        fill_square = random.choice(empty_list)
+        new_list = empty_list[:]
+        new_list.remove(fill_square)
+        brd.fill(fill_square, to_fill)
+        score = self.monte_carlo(brd, depth+1, new_list)
+        brd.fill(fill_square, ' ')
+        return score
 
     def make_move(self, brd: Board):
         """Make move on board according to difficulty."""
-        difficulty_list = [self.easy_move, self.medium_move, self.master_move]
+        difficulty_list = [self.monte_moron, self.medium_move, self.monte_move]
         if self.difficulty == "easy":
             return difficulty_list[0](brd)
         if self.difficulty == "medium":

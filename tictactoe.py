@@ -42,7 +42,7 @@ def main():
     while True:
         print(board)
         p1_move = pl_1.make_move(board)
-        board.fill_square(p1_move, pl_1.letter)
+        board.fill(p1_move, pl_1.letter)
         print(board)
         if board.get_winner() == pl_1.letter:
             print("You win!")
@@ -51,7 +51,8 @@ def main():
             print("Tie!")
             return
         ai_move = ai_1.make_move(board)
-        board.fill_square(ai_move, ai_1.letter)
+        print(board.func_counts)
+        board.fill(ai_move, ai_1.letter)
         print(f"\
 Cpu player filled in row {ai_move[0]} col {ai_move[1]}.\
         ")
