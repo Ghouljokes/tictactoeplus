@@ -67,20 +67,6 @@ class AiPlayer:
             return try_square
         return random.choice(brd.get_all_matching(' '))
 
-    def monte_moron(self, brd: Board):
-        """Monte carlo algorithm choosing min score."""
-        empty_list = brd.get_all_matching(' ')
-        cell_scores = {cell: 0 for cell in empty_list}
-        for cell in empty_list:
-            brd.fill(cell, self.letter)
-            new_list = empty_list[:]
-            new_list.remove(cell)
-            for i in range(100):
-                cell_scores[cell] += self.monte_carlo(brd, 0, new_list)
-            brd.fill(cell, ' ')
-        min_cell = min(cell_scores, key=cell_scores.get)
-        return min_cell
-
     def monte_move(self, brd: Board):
         """Monte carlo algorithm playing each empty cell 100 times."""
         empty_list = brd.get_all_matching(' ')
@@ -92,8 +78,11 @@ class AiPlayer:
             for i in range(100):
                 cell_scores[cell] += self.monte_carlo(brd, 0, new_list)
             brd.fill(cell, ' ')
-        max_cell = max(cell_scores, key=cell_scores.get)
-        return max_cell
+        if self.difficulty == "master":
+            choice_cell = max(cell_scores, key=cell_scores.get)
+        else:
+            choice_cell = min(cell_scores, key=cell_scores.get)
+        return choice_cell
 
     def monte_carlo(self, brd: Board, depth: int, empty_list: list) -> int:
         """Implementation of the Monte Carlo algorithm."""
@@ -103,6 +92,7 @@ class AiPlayer:
         if winner == self.opponent:
             return -1
         if brd.is_full():
+
             return 0
         players = [self.opponent, self.letter]
         to_fill = players[depth % 2]
@@ -116,7 +106,7 @@ class AiPlayer:
 
     def make_move(self, brd: Board):
         """Make move on board according to difficulty."""
-        difficulty_list = [self.monte_moron, self.medium_move, self.monte_move]
+        difficulty_list = [self.monte_move, self.medium_move, self.monte_move]
         if self.difficulty == "easy":
             return difficulty_list[0](brd)
         if self.difficulty == "medium":
