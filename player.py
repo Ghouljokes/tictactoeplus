@@ -1,7 +1,6 @@
 """Contains player class."""
 import random
 
-from numpy import ma
 from board import Board
 
 
@@ -48,6 +47,7 @@ class AiPlayer:
 
     def __init__(self, letter: str, opponent: str, difficulty: str):
         """Initialize player.
+
         Args:
             letter (str): Letter that will rep player on board
             opponent (str): opponent's letter
@@ -83,13 +83,12 @@ class AiPlayer:
         min_cell = min(cell_scores, key=cell_scores.get)
         if self.difficulty == "master":
             return max_cell
-        elif self.difficulty == "easy":
+        if self.difficulty == "easy":
             return min_cell
-        else:
-            return random.choice([max_cell, min_cell])
+        return random.choice([max_cell, min_cell])
 
     def monte_carlo(self, brd: Board, depth: int, empty_list: list) -> int:
-        """Implementation of the Monte Carlo algorithm."""
+        """Implement the Monte Carlo algorithm."""
         winner = brd.get_winner()
         if winner == self.letter:
             return 1

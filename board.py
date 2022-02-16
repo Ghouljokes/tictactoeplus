@@ -42,7 +42,6 @@ class Board:
             new_ray = self.get_streak(pos, direction)
             self.all_paths.append(new_ray)
 
-
     def __repr__(self) -> str:
         """Print the board."""
         rows_to_print = []
@@ -86,10 +85,10 @@ class Board:
 
     def winning_square(self, ltr: str):
         """Return position ltr should place to win."""
-        if len(self.get_all_matching(ltr)) < min([self.width, self.height]) - 1:
+        if len(self.get_all_matching(ltr)) < min([self.width, self.height])-1:
             return None
         for path in self.all_paths:
-           vals = [self.coords[cell] for cell in path]
-           if vals.count(' ') == 1 and vals.count(ltr) == len(vals) - 1:
-               return path[vals.index(' ')]
+            vals = [self.coords[cell] for cell in path]
+            if vals.count(' ') == 1 and vals.count(ltr) == len(vals)-1:
+                return path[vals.index(' ')]
         return None
