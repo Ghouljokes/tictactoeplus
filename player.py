@@ -74,7 +74,7 @@ class AiPlayer:
             try_square = brd.winning_square(self.letter)
             if try_square:
                 return try_square
-            try_square = brd.winning_square(self.ospponent)
+            try_square = brd.winning_square(self.opponent)
             if try_square:
                 return try_square
         empty_list = brd.get_all_matching(' ')
