@@ -59,7 +59,7 @@ class AiPlayer:
         self.difficulty = difficulty
 
     def medium_move(self, brd: Board) -> tuple:
-        """Choose first blank square (subject to change)."""
+        """Fill own sreaks and block player streaks, otherwise pick random."""
         try_square = brd.winning_square(self.letter)
         if try_square:
             return try_square
@@ -70,6 +70,13 @@ class AiPlayer:
 
     def monte_move(self, brd: Board):
         """Monte carlo algorithm playing each empty cell 100 times."""
+        if self.difficulty == "master":
+            try_square = brd.winning_square(self.letter)
+            if try_square:
+                return try_square
+            try_square = brd.winning_square(self.ospponent)
+            if try_square:
+                return try_square
         empty_list = brd.get_all_matching(' ')
         cell_scores = {cell: 0 for cell in empty_list}
         for cell in empty_list:
@@ -95,7 +102,6 @@ class AiPlayer:
         if winner == self.opponent:
             return -1
         if brd.is_full():
-
             return 0
         players = [self.opponent, self.letter]
         to_fill = players[depth % 2]
