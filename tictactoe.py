@@ -15,16 +15,15 @@ def make_board() -> Board:
 
 def difficulty_select() -> str:
     """Select difficulty for the ai."""
-    difficulties = {
-        "1": "easy", "2": "medium",
-        "3": "master", "4": "chaotic"
-        }
+    difficulties = {"1": "easy", "2": "medium", "3": "master", "4": "chaotic"}
     while True:
-        print("How difficult would you like the ai?\n\
+        print(
+            "How difficult would you like the ai?\n\
 1) Easy\n\
 2) Medium\n\
 3) Master\n\
-4) Chaotic")
+4) Chaotic"
+        )
         difficulty = input("Difficulty: ")
         if difficulty in difficulties:
             return difficulties[difficulty]
@@ -37,8 +36,8 @@ def main():
     board = make_board()
     print(board)
     difficulty = difficulty_select()
-    pl_1 = HumanPlayer('X', 'O')
-    ai_1 = AiPlayer('O', 'X', difficulty)
+    pl_1 = HumanPlayer("X", "O")
+    ai_1 = AiPlayer("O", "X", difficulty)
     while True:
         print(board)
         p1_move = pl_1.make_move(board)
@@ -52,9 +51,11 @@ def main():
             return
         ai_move = ai_1.make_move(board)
         board.fill(ai_move, ai_1.letter)
-        print(f"\
+        print(
+            f"\
 Cpu player filled in row {ai_move[0]} col {ai_move[1]}.\
-        ")
+        "
+        )
         if board.get_winner() == ai_1.letter:
             print(board)
             print("You lose!")
@@ -67,6 +68,6 @@ Cpu player filled in row {ai_move[0]} col {ai_move[1]}.\
 
 while True:
     main()
-    to_quit = input("Enter \'q\' to quit or any other key to play again.\n")
-    if to_quit == 'q':
+    to_quit = input("Enter 'q' to quit or any other key to play again.\n")
+    if to_quit == "q":
         break

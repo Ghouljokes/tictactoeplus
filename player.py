@@ -4,7 +4,7 @@ import random
 from board import Board
 
 
-class Player():
+class Player:
     """Superclass for players."""
 
     def __init__(self, letter, opponent):
@@ -12,34 +12,34 @@ class Player():
         self.letter = letter
         self.opponent = opponent
 
-    def make_move(self, brd):
+    def make_move(self, board):
         """Get coordinates for new move."""
 
 
 class HumanPlayer(Player):
     """User controlled player."""
 
-    def make_move(self, brd: Board):
+    def make_move(self, board: Board):
         """Player selects square on the board to fill."""
-        valid_rows = [str(i + 1) for i in range(brd.height)]
-        valid_cols = [str(i + 1) for i in range(brd.width)]
-        while True:
-            row_in = input(
-                "Choose a row. Rows are indexed at one from top.\n"
-                )
-            if row_in not in valid_rows:
-                print("Please enter a valid row number.")
-                continue
-            col_in = input(
-                "Choose a col. Cols are indexed at one from left.\n"
-                )
-            if col_in not in valid_cols:
-                print("Please enter a valid col number.")
-                continue
-            row, col = int(row_in) - 1, int(col_in) - 1
-            if brd.coords[(row, col)] == ' ':
-                return (row, col)
+        square = None
+        while not square:
+            square = self.select_square(board)
+        return square
+
+    def select_square(self, board: Board):
+        row_input = input("Choose a row. Rows are indexed at one from top.\n")
+        if row_input not in board.valid_row_inputs:
+            print("Please enter a valid row number.")
+            return None
+        col_input = input("Choose a col. Cols are indexed at one from left.\n")
+        if col_input not in board.valid_col_inputs:
+            print("Please enter a valid col number.")
+            return None
+        row, col = int(row_input) - 1, int(col_input) - 1
+        if board.coords[(row, col)] != " ":
             print("That square is already filled!")
+            return None
+        return (row, col)
 
 
 class AiPlayer:
@@ -58,34 +58,40 @@ class AiPlayer:
         self.opponent = opponent
         self.difficulty = difficulty
 
-    def medium_move(self, brd: Board) -> tuple:
-        """Fill own sreaks and block player streaks, otherwise pick random."""
-        try_square = brd.winning_square(self.letter)
-        if try_square:
-            return try_square
-        try_square = brd.winning_square(self.opponent)
-        if try_square:
-            return try_square
-        return random.choice(brd.get_all_matching(' '))
+    def seek_winning_square(self, board: Board):
+        """Check if there is a square that would allow self or opponent to win."""
+        self_win_square = board.winning_square(self.letter)
+        if self_win_square:
+            return self_win_square
+        opponent_win_square = board.winning_square(self.opponent)
+        if opponent_win_square:
+            return opponent_win_square
+        return None
 
-    def monte_move(self, brd: Board):
+    def medium_move(self, board: Board) -> tuple:
+        """Fill own sreaks and block player streaks, otherwise pick random."""
+        winner_square = self.seek_winning_square(board)
+        if winner_square:
+            return winner_square
+        return random.choice(board.get_all_matching(" "))
+
+    def monte_move(self, board: Board):
         """Monte carlo algorithm playing each empty cell 100 times."""
         if self.difficulty == "master":
-            try_square = brd.winning_square(self.letter)
-            if try_square:
-                return try_square
-            try_square = brd.winning_square(self.opponent)
-            if try_square:
-                return try_square
-        empty_list = brd.get_all_matching(' ')
-        cell_scores = {cell: 0 for cell in empty_list}
-        for cell in empty_list:
-            brd.fill(cell, self.letter)
-            new_list = empty_list[:]
-            new_list.remove(cell)
-            for i in range(100):
-                cell_scores[cell] += self.monte_carlo(brd, 0, new_list)
-            brd.fill(cell, ' ')
+            # Skip over all the monte carlo if there's a clear winning square.
+            winner_square = self.seek_winning_square(board)
+            if winner_square:
+                return winner_square
+        empty_squares = board.get_all_matching(" ")
+        # How viable each cell will be.
+        cell_scores = {cell: 0 for cell in empty_squares}
+        for cell in empty_squares:
+            board.fill(cell, self.letter)
+            empty_copy = empty_squares[:]
+            empty_copy.remove(cell)
+            for _ in range(100):
+                cell_scores[cell] += self.monte_carlo(board, 0, empty_copy)
+            board.fill(cell, " ")
         max_cell = max(cell_scores, key=cell_scores.get)
         min_cell = min(cell_scores, key=cell_scores.get)
         if self.difficulty == "master":
@@ -94,7 +100,7 @@ class AiPlayer:
             return min_cell
         return random.choice([max_cell, min_cell])
 
-    def monte_carlo(self, brd: Board, depth: int, empty_list: list) -> int:
+    def monte_carlo(self, brd: Board, depth: int, empty_squares: list) -> int:
         """Implement the Monte Carlo algorithm."""
         winner = brd.get_winner()
         if winner == self.letter:
@@ -105,12 +111,12 @@ class AiPlayer:
             return 0
         players = [self.opponent, self.letter]
         to_fill = players[depth % 2]
-        fill_square = random.choice(empty_list)
-        new_list = empty_list[:]
+        fill_square = random.choice(empty_squares)
+        new_list = empty_squares[:]
         new_list.remove(fill_square)
         brd.fill(fill_square, to_fill)
-        score = self.monte_carlo(brd, depth+1, new_list)
-        brd.fill(fill_square, ' ')
+        score = self.monte_carlo(brd, depth + 1, new_list)
+        brd.fill(fill_square, " ")
         return score
 
     def make_move(self, brd: Board):
